@@ -1,27 +1,44 @@
-import React, { useState, useContext} from "react";
-import { Link, useHistory} from "react-router-dom";
-import { GlobalContext } from "../context/GlobalState";
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState, useContext, useEffect } from 'react';
+import { useHistory, Link } from 'react-router-dom';
+import { GlobalContext } from '../context/GlobalState';
 
-export const AddEmployee = () => {
+export const EditEmployee = (route) => {
     let history = useHistory();
 
     const [ employees, dispatch ] = useContext(GlobalContext);
-    const [name, setName] = useState("");
-    const [ email, setEmail] = useState("");
-    const [ company, setCompany] = useState("");
+
+    const [selectedUser, setSelectedUser] = useState({
+        id: null,
+        name: "",
+        email: "",
+        company: {
+            name: ""
+        },
+    });
+
+    const currentUserId = route.match.params.id;
+
+    useEffect(() => {
+        const employeeId = currentUserId;
+        const selectedUser = employees.find(
+            (currentEmployeeTraversal) => currentEmployeeTraversal.id === parseInt(employeeId)
+        );
+        setSelectedUser(selectedUser);
+    }, [currentUserId, employees]);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const newEmployee = {
-            id: uuidv4(),
-            name,
-            email,
-            company: {name: company}
-        }
-        dispatch({type: "ADD_EMPLOYEE", payload: newEmployee});
+        dispatch({type: "EDIT_EMPLOYEE", payload: selectedUser});
         history.push("/");
+    };
+
+    const handleOnChange = (userKey, newValue) =>
+        setSelectedUser({ ...selectedUser, [userKey]: newValue });
+
+    if (!selectedUser || !selectedUser.id) {
+        return <div>Invalid Employee ID.</div>;
     }
+
     return (
         <React.Fragment>
             <div className="w-full max-w-sm container mt-20 mx-auto">
@@ -34,14 +51,14 @@ export const AddEmployee = () => {
                             Name of employee
                         </label>
                         <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:text-gray-600"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:text-gray-600 focus:shadow-outline"
+                            value={selectedUser.name}
+                            onChange={(e) => handleOnChange("name", e.target.value)}
                             type="text"
                             placeholder="Enter name"
                         />
                     </div>
-                    <div className="w-full mb-5">
+                    <div className="w-full  mb-5">
                         <label
                             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                             htmlFor="location"
@@ -50,13 +67,13 @@ export const AddEmployee = () => {
                         </label>
                         <input
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:text-gray-600 focus:shadow-outline"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={selectedUser.email}
+                            onChange={(e) => handleOnChange("email", e.target.value)}
                             type="text"
                             placeholder="Enter email"
                         />
                     </div>
-                    <div className="w-full mb-5">
+                    <div className="w-full  mb-5">
                         <label
                             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                             htmlFor="designation"
@@ -64,16 +81,16 @@ export const AddEmployee = () => {
                             Company name
                         </label>
                         <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:text-gray-600"
-                            value={company}
-                            onChange={(e) => setCompany(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:text-gray-600 focus:shadow-outline"
+                            value={selectedUser.company.name}
+                            onChange={(e) => handleOnChange("name", e.target.value)}
                             type="text"
-                            placeholder="Enter company name"
+                            placeholder="Enter a company name"
                         />
                     </div>
                     <div className="flex items-center justify-between">
-                        <button className="mt-5 bg-green-400 w-full hover:bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                            Add Employee
+                        <button className="block mt-5 bg-green-400 w-full hover:bg-green-500 text-white font-bold py-2 px-4 rounded focus:text-gray-600 focus:shadow-outline">
+                            Edit Employee
                         </button>
                     </div>
                     <div className="text-center mt-4 text-gray-500">

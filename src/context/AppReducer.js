@@ -2,6 +2,11 @@
 
 export default function appReducer(state, action) {
     switch (action.type) {
+        case "FETCH_EMPLOYEES":
+            return {
+                ...state,
+                employees: [...state.employees, action.payload]
+            }
         case "ADD_EMPLOYEE":
             return {
                 ...state,
